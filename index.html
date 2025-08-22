@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Call of Duty Team Generator</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0f1419 0%, #1a2332 50%, #0d1117 100%);
+            color: #00ff88;
+            font-family: 'Orbitron', monospace;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(0, 255, 136, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 136, 0, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(136, 0, 255, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+        }
+        
+        .title {
+            font-size: 3.5rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            background: linear-gradient(45deg, #00ff88, #ff8800, #8800ff);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(0, 255, 136, 0.5);
+            margin-bottom: 10px;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes glow {
+            from { filter: drop-shadow(0 0 10px rgba(0, 255, 136, 0.3)); }
+            to { filter: drop-shadow(0 0 20px rgba(0, 255, 136, 0.6)); }
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+        
+        .controls {
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid #00ff88;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.2);
+            backdrop-filter: blur(10px);
+        }
+        
+        .control-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+        
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        label {
+            color: #00ff88;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+        }
+        
+        input, select, textarea {
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #333;
+            border-radius: 8px;
+            color: #00ff88;
+            padding: 12px;
+            font-family: 'Orbitron', monospace;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #00ff88;
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.3);
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .generate-btn {
+            background: linear-gradient(45deg, #ff4444, #ff6600);
+            border: none;
+            color: white;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(255, 68, 68, 0.3);
+            font-family: 'Orbitron', monospace;
+            letter-spacing: 2px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 68, 68, 0.5);
+        }
+        
+        .generate-btn:active {
+            transform: translateY(0);
+        }
+        
+        .generate-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .generate-btn:hover::before {
+            left: 100%;
+        }
+        
+        .teams-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+        
+        .team {
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid transparent;
+            border-radius: 15px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .team:nth-child(odd) {
+            border-color: #00ff88;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.2);
+        }
+        
+        .team:nth-child(even) {
+            border-color: #ff8800;
+            box-shadow: 0 0 20px rgba(255, 136, 0, 0.2);
+        }
+        
+        .team:nth-child(3n) {
+            border-color: #8800ff;
+            box-shadow: 0 0 20px rgba(136, 0, 255, 0.2);
+        }
+        
+        .team:hover {
+            transform: translateY(-5px);
+        }
+        
+        .team-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .team-icon {
+            width: 40px;
+            height: 40px;
+            margin-right: 15px;
+            font-size: 1.5rem;
+        }
+        
+        .team-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .team:nth-child(odd) .team-name {
+            color: #00ff88;
+        }
+        
+        .team:nth-child(even) .team-name {
+            color: #ff8800;
+        }
+        
+        .team:nth-child(3n) .team-name {
+            color: #8800ff;
+        }
+        
+        .players {
+            list-style: none;
+        }
+        
+        .player {
+            background: rgba(255, 255, 255, 0.05);
+            margin: 10px 0;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border-left: 3px solid;
+            position: relative;
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.3s ease-out forwards;
+            opacity: 0;
+        }
+        
+        .team:nth-child(odd) .player {
+            border-left-color: #00ff88;
+        }
+        
+        .team:nth-child(even) .player {
+            border-left-color: #ff8800;
+        }
+        
+        .team:nth-child(3n) .player {
+            border-left-color: #8800ff;
+        }
+        
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .player:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+        
+        .error {
+            background: rgba(255, 0, 0, 0.1);
+            border: 1px solid #ff4444;
+            color: #ff6666;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+            font-weight: 700;
+        }
+        
+        .loading {
+            text-align: center;
+            font-size: 1.2rem;
+            color: #00ff88;
+            margin: 20px 0;
+        }
+        
+        .loading::after {
+            content: '';
+            animation: dots 1.5s infinite;
+        }
+        
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60% { content: '...'; }
+            90%, 100% { content: ''; }
+        }
+        
+        @media (max-width: 768px) {
+            .title { font-size: 2.5rem; }
+            .control-group { grid-template-columns: 1fr; }
+            .teams-container { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">🎯 COD Team Generator</h1>
+            <p class="subtitle">tactical squad deployment</p>
+        </div>
+        
+        <div class="controls">
+            <div class="control-group">
+                <div class="input-group">
+                    <label for="numTeams">Number of Teams</label>
+                    <select id="numTeams">
+                        <option value="2">2 Teams</option>
+                        <option value="3">3 Teams</option>
+                        <option value="4">4 Teams</option>
+                        <option value="5">5 Teams</option>
+                        <option value="6">6 Teams</option>
+                    </select>
+                </div>
+                
+                <div class="input-group">
+                    <label for="playersPerTeam">Players per Team</label>
+                    <select id="playersPerTeam">
+                        <option value="3">3 Players</option>
+                        <option value="4">4 Players</option>
+                        <option value="5">5 Players</option>
+                        <option value="6">6 Players</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="input-group">
+                <label for="playerNames">Player Names (one per line)</label>
+                <textarea id="playerNames" placeholder="Enter player names here...">streetwizetwo
+drakion
+rxi20valve
+ashton
+nickhil
+hummus
+vitblits
+venom786
+navster</textarea>
+            </div>
+            
+            <div style="text-align: center; margin-top: 25px;">
+                <button class="generate-btn" onclick="generateTeams()">🚀 Deploy Teams</button>
+            </div>
+        </div>
+        
+        <div id="teamsContainer" class="teams-container"></div>
+    </div>
+    
+    <script>
+        const teamIcons = ['🔥', '⚡', '💀', '🎯', '⚔️', '🛡️'];
+        const teamNames = ['Alpha Squad', 'Bravo Unit', 'Charlie Team', 'Delta Force', 'Echo Squad', 'Foxtrot Unit'];
+        
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+        
+        function generateTeams() {
+            const numTeams = parseInt(document.getElementById('numTeams').value);
+            const playersPerTeam = parseInt(document.getElementById('playersPerTeam').value);
+            const playerNamesText = document.getElementById('playerNames').value.trim();
+            const container = document.getElementById('teamsContainer');
+            
+            // Clear previous results
+            container.innerHTML = '';
+            
+            if (!playerNamesText) {
+                container.innerHTML = '<div class="error">⚠️ Please enter player names!</div>';
+                return;
+            }
+            
+            const playerNames = playerNamesText
+                .split('\n')
+                .map(name => name.trim())
+                .filter(name => name.length > 0);
+            
+            const totalPlayersNeeded = numTeams * playersPerTeam;
+            
+            if (playerNames.length < totalPlayersNeeded) {
+                container.innerHTML = `<div class="error">⚠️ Not enough players! You need ${totalPlayersNeeded} players but only have ${playerNames.length}.</div>`;
+                return;
+            }
+            
+            // Show loading animation
+            container.innerHTML = '<div class="loading">Deploying tactical squads</div>';
+            
+            setTimeout(() => {
+                const shuffledPlayers = shuffleArray(playerNames);
+                const teams = [];
+                
+                for (let i = 0; i < numTeams; i++) {
+                    const teamPlayers = shuffledPlayers.slice(i * playersPerTeam, (i + 1) * playersPerTeam);
+                    teams.push({
+                        name: teamNames[i],
+                        icon: teamIcons[i],
+                        players: teamPlayers
+                    });
+                }
+                
+                displayTeams(teams);
+            }, 1000);
+        }
+        
+        function displayTeams(teams) {
+            const container = document.getElementById('teamsContainer');
+            container.innerHTML = '';
+            
+            teams.forEach((team, index) => {
+                const teamDiv = document.createElement('div');
+                teamDiv.className = 'team';
+                teamDiv.style.animationDelay = `${index * 0.1}s`;
+                
+                const playersHtml = team.players
+                    .map((player, playerIndex) => 
+                        `<li class="player" style="animation-delay: ${(index * 0.1) + (playerIndex * 0.05)}s; transform: translateY(20px);">${player}</li>`
+                    )
+                    .join('');
+                
+                teamDiv.innerHTML = `
+                    <div class="team-header">
+                        <div class="team-icon">${team.icon}</div>
+                        <div class="team-name">${team.name}</div>
+                    </div>
+                    <ul class="players">
+                        ${playersHtml}
+                    </ul>
+                `;
+                
+                container.appendChild(teamDiv);
+            });
+        }
+        
+        // Auto-generate on page load for demo
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(generateTeams, 500);
+        });
+    </script>
+</body>
+</html>
